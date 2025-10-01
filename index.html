@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Trái tim Trung Thu ✨🌕</title>
+  <meta name="description" content="Trái tim hạt li ti đập nhẹ ở giữa màn hình, vòng chữ chúc Trung Thu xoay như cái đế, hạt nhỏ bay vào tim, nền bầu trời đêm có lồng đèn bay chậm & bật nhạc ngay (nhac.mp3)." />
+  <meta name="theme-color" content="#050814" />
+  <style>
+    /* --------------------------------------------------
+       1) RESET & BIẾN TOÀN CỤC
+       -------------------------------------------------- */
+    *, *::before, *::after { box-sizing: border-box; }
+    html, body { height: 100%; }
+    html { color-scheme: dark; }
+    body {
+      margin: 0;
+      font-family: system-ui, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+      color: #e7ecff;
+      background: radial-gradient(1200px 800px at 70% -10%, #1b2a5a 0%, #0a1430 45%, #050814 70%, #030611 100%);
+      overflow: hidden;
+    }
+
+    /* Ngôi sao nhỏ lấp lánh đơn giản (nhiều lớp để có chiều sâu) */
+    .stars, .stars::before, .stars::after {
+      position: absolute; inset: -50% -50% -50% -50%; content: ""; pointer-events: none;
+      background-image:
+        radial-gradient(1px 1px at 25% 40%, #fff8 50%, transparent 55%),
+        radial-gradient(1px 1px at 65% 25%, #fff6 50%, transparent 55%),
+        radial-gradient(1px 1px at 80% 60%, #fff8 50%, transparent 55%),
+        radial-gradient(1px 1px at 15% 70%, #fff5 50%, transparent 55%),
+        radial-gradient(1px 1px at 45% 85%, #fff7 50%, transparent 55%),
+        radial-gradient(1px 1px at 90% 10%, #fff6 50%, transparent 55%),
+        radial-gradient(1px 1px at 5% 15%,  #fff7 50%, transparent 55%);
+      background-repeat: repeat;
+      background-size: 600px 600px;
+      opacity: .7;
+      animation: twinkle 18s linear infinite;
+    }
+    .stars::before { animation-duration: 26s; opacity: .6; filter: blur(.3px); }
+    .stars::after  { animation-duration: 32s; opacity: .5; filter: blur(.6px); }
+    @keyframes twinkle { to { transform: translateY(-40px); } }
+
+    /* Trăng nhẹ góc phải */
+    .moon {
+      position: absolute; right: 6vw; top: 6vh; width: 120px; height: 120px; border-radius: 50%;
+      background: radial-gradient(circle at 30% 30%, #fff8 0, #fff6 25%, #ffd 45%, #e6e6b6 60%, #0000 62%),
+                  radial-gradient(70px 70px at 60% 60%, #fff3 0, #0000 70%);
+      box-shadow: 0 0 40px 10px #ffe9a8aa, 0 0 120px 40px #ffe9a84d;
+      filter: saturate(1.1);
+      pointer-events: none;
+    }
+
+    /* --------------------------------------------------
+       2) LỒNG ĐÈN BAY (SVG + CSS)
+       -------------------------------------------------- */
+    .lanterns { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
+    .lantern { position: absolute; bottom: -20vh; width: 80px; height: 120px; opacity: .85;
+      animation: floatUp linear infinite;
+      filter: drop-shadow(0 0 6px #ffb23a) drop-shadow(0 0 16px #ff7b29);
+    }
+    .lantern svg { width: 100%; height: 100%; }
+    .lantern:nth-child(odd){ animation-duration: 42s; }
+    .lantern:nth-child(even){ animation-duration: 52s; }
+    .lantern .glow { animation: glow 3s ease-in-out infinite; transform-origin: 50% 50%; }
+
+    @keyframes floatUp {
+      from { transform: translateY(0) translateX(0) rotate(0.2deg); }
+      to   { transform: translateY(-140vh) translateX(-20px) rotate(-0.2deg); }
+    }
+    @keyframes glow { 0%,100%{ opacity: .9 } 50%{ opacity: .5 } }
+
+    /* --------------------------------------------------
+       3) CANVAS TRÁI TIM + HẠT BAY VÀO TIM
+       -------------------------------------------------- */
+    #scene { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+
+    /* --------------------------------------------------
+       4) VÒNG CHỮ QUAY NHƯ CÁI ĐẾ – 3D chữ quanh tim
+       -------------------------------------------------- */
+    .rings {
+      position: absolute; left: 50%; bottom: 8vh; transform: translateX(-50%);
+      width: min(90vw, 900px); height: 42vh; pointer-events: none; perspective: 1200px;
+    }
+    .ring {
+      position: absolute; left: 50%; bottom: 0; transform-style: preserve-3d;
+      --radius: 300px;  /* bán kính vòng */
+      --tilt: 68deg;    /* nghiêng để tạo cảm giác cái đế */
+      --speed: 28s;     /* tốc độ quay */
+      --dir: 1;         /* hướng quay */
+      --y: 0px;         /* nâng hạ vòng */
+      animation: spin var(--speed) linear infinite;
+      transform: translateX(-50%) translateY(var(--y)) rotateX(var(--tilt));
+      filter: drop-shadow(0 10px 8px #000a);
+    }
+    @keyframes spin { to { transform: translateX(-50%) translateY(var(--y)) rotateX(var(--tilt)) rotateY(calc(var(--dir)*1turn)); } }
+
+    .ring .char { position: absolute; left: 50%; top: 50%; transform-origin: 0 0; white-space: pre; font-weight: 800; letter-spacing: 1px; }
+    .ring .char s { text-decoration: none; opacity: .25; } /* dấu chấm ngăn cách mờ hơn */
+
+    /* Hiệu ứng loang sáng vào chữ để nổi */
+    .ring .char { color: #fff; text-shadow: 0 1px 0 #0009, 0 0 12px #9ad2ff90, 0 0 24px #43d1ff50; }
+
+    /* --------------------------------------------------
+       5) NÚT ÂM THANH & CỬA CHẶN TỰ ĐỘNG PHÁT
+       -------------------------------------------------- */
+    .controls { position: fixed; right: 14px; bottom: 14px; z-index: 50; display: flex; gap: 10px; }
+    .btn {
+      -webkit-tap-highlight-color: transparent;
+      background: #0b1b3a99; border: 1px solid #2c3c88; color: #e8f3ff; padding: 10px 14px; border-radius: 12px;
+      backdrop-filter: blur(6px); box-shadow: 0 4px 20px #0008 inset, 0 0 18px #3aa9ff33;
+      font-weight: 700; cursor: pointer; user-select: none;
+    }
+    .btn:hover { filter: brightness(1.15); }
+
+    .gate { position: fixed; inset: 0; display: grid; place-items: center; background: #000a; z-index: 80; }
+    .gate .panel { background: linear-gradient(180deg,#0a1640dd,#040a20ee); border: 1px solid #2f4aa6; padding: 22px; border-radius: 16px; box-shadow: 0 10px 50px #000c, 0 0 60px #4dc8ff33 inset; text-align: center; }
+    .gate h1 { margin: 0 0 8px; font-size: 24px; }
+    .hide { display: none !important; }
+
+    /* Hướng dẫn thêm: chữ ở góc trên cùng để người dùng biết đặt file nhạc */
+    .hint { position: fixed; left: 12px; top: 10px; font-size: 12px; opacity: .8; color: #c7d6ff; z-index: 10; }
+  </style>
+</head>
+<body>
+  <!-- NỀN sao & trăng -->
+  <div class="stars"></div>
+  <div class="moon"></div>
+
+  <!-- LỒNG ĐÈN bay chậm rãi (SVG inline để dùng 1 file) -->
+  <div class="lanterns" id="lanterns"></div>
+
+  <!-- CANVAS: Trái tim bằng hạt li ti + hạt bay vào tim -->
+  <canvas id="scene" aria-hidden="true"></canvas>
+
+  <!-- Các vòng chữ quay quanh tim như cái đế -->
+  <div class="rings" id="rings" aria-hidden="true"></div>
+
+  <!-- Nhạc nền: đặt file nhac.mp3 cùng thư mục. Trình duyệt sẽ thử auto-play; nếu chặn thì hiện lớp gate. -->
+  <audio id="bgm" src="nhac.mp3" preload="auto" loop playsinline></audio>
+
+  <div class="controls">
+    <button class="btn" id="toggleMute" title="Bật/tắt nhạc">🔊 Đang phát</button>
+  </div>
+
+  <div id="gate" class="gate hide" role="dialog" aria-modal="true">
+    <div class="panel">
+      <h1>🎵 Mở nhạc Trung Thu?</h1>
+      <p>Nhấn nút bên dưới để bật nhạc nền (do trình duyệt chặn tự động phát).</p>
+      <button id="gatePlay" class="btn">Bật nhạc</button>
+    </div>
+  </div>
+
+  <div class="hint">💡 Đặt file <b>nhac.mp3</b> cạnh file HTML này để có nhạc khi mở trang.</div>
+
+  <script>
+  /* ======================================================================
+     TRUNG THU HEART – SINGLE FILE (HTML/CSS/JS)
+     - Trái tim lớn giữa màn hình tạo từ hạt li ti, đổi màu nhẹ và đập nhẹ.
+     - Bên dưới là các vòng chữ chúc Trung Thu quay nhiều lớp như cái đế.
+     - Một số hạt nhỏ bay từ dưới lên rồi hoà vào trái tim.
+     - Nền có trăng, sao, lồng đèn bay chậm rãi.
+     - Nhạc tự phát nếu trình duyệt cho phép; nếu không sẽ hiện lớp xin phép.
+     ---------------------------------------------------------------------- */
+  (() => {
+    const dpr = Math.min(2, window.devicePixelRatio || 1);
+    const canvas = document.getElementById('scene');
+    const ctx = canvas.getContext('2d');
+    const ringsEl = document.getElementById('rings');
+
+    const state = { w: 0, h: 0, cx: 0, cy: 0, scale: 1 };
+
+    function resize(){
+      state.w = Math.floor(innerWidth * dpr);
+      state.h = Math.floor(innerHeight * dpr);
+      canvas.width = state.w; canvas.height = state.h;
+      canvas.style.width = innerWidth + 'px';
+      canvas.style.height = innerHeight + 'px';
+      state.cx = state.w/2; state.cy = state.h * 0.40; // tim ở 40% chiều cao
+      state.scale = Math.min(state.w, state.h) * 0.35; // kích thước tim
+    }
+    addEventListener('resize', resize); resize();
+
+    /* ----------------------------------------
+       1) TẠO HÌNH TRÁI TIM (điều kiện ẩn hàm tim)
+       Công thức implicit: (x^2 + y^2 - 1)^3 - x^2*y^3 <= 0
+       Ta random điểm trong hộp [-1.3,1.3]^2 để lấp kín mặt tim.
+       ---------------------------------------- */
+    const HEART_BOX = 1.3;           // biên thử điểm
+    const HEART_COUNT = 3400;        // số hạt tạo nên tim
+    const heartPts = [];
+
+    function inHeart(x,y){
+      const a = x*x + y*y - 1;
+      return (a*a*a - x*x*y*y*y) <= 0;
+    }
+    function buildHeart(){
+      heartPts.length = 0;
+      while(heartPts.length < HEART_COUNT){
+        const x = (Math.random()*2 - 1) * HEART_BOX;
+        const y = (Math.random()*2 - 1) * HEART_BOX;
+        if(inHeart(x,y)){
+          heartPts.push({x, y, hue: Math.random()*60, jx: (Math.random()-.5)*0.006, jy: (Math.random()-.5)*0.006});
+        }
+      }
+    }
+    buildHeart();
+
+    /* ----------------------------------------
+       2) HẠT BAY TỪ DƯỚI LÊN VÀO TIM
+       ---------------------------------------- */
+    const RISERS = [];
+    const RISER_COUNT = 80;
+    function spawnRiser(r){
+      const boxW = Math.min(state.w/dpr, 900) * 0.60; // vùng phát bên dưới tim
+      const x = innerWidth/2 + (Math.random() - .5) * boxW;
+      const y = innerHeight*0.80 + Math.random()*40; // dưới tim
+      r.x = x * dpr; r.y = y * dpr; r.vx = (Math.random()-.5)*0.15*dpr; r.vy = - (0.6 + Math.random()*0.6) * dpr;
+      r.ax = 0; r.ay = -0.002*dpr; r.life = 1; r.target = null; r.size = 1 + Math.random()*1.4;
+    }
+    for(let i=0;i<RISER_COUNT;i++) RISERS.push({}), spawnRiser(RISERS[i]);
+
+    // Chọn điểm bất kỳ bên trong tim làm đích để hạt chui vào
+    function pickHeartPixel(){
+      const p = heartPts[(Math.random()*heartPts.length)|0];
+      // chuyển đổi sang toạ độ canvas pixel ngay lúc render mới chuẩn, nên tạm trả p, lúc dùng sẽ quy đổi.
+      return p;
+    }
+
+    /* ----------------------------------------
+       3) VẼ/ANIMATE TIM & HẠT
+       ---------------------------------------- */
+    let t0 = performance.now();
+    function draw(){
+      const t = performance.now();
+      const dt = Math.min(40, t - t0); // ms
+      t0 = t;
+
+      // nền mờ đen nhẹ để hạt đuôi mượt (motion trail) – rất nhẹ thôi
+      ctx.fillStyle = 'rgba(0,0,0,0.25)';
+      ctx.fillRect(0,0,canvas.width,canvas.height);
+
+      // Nhịp đập: scale dao động 3–4%
+      const beat = 1 + 0.035 * Math.sin(t*0.0047);
+      const baseS = state.scale * beat;
+
+      // Hue tổng thể chạy chậm để tim đổi màu dịu
+      const hue = (t*0.02) % 360;
+
+      // VẼ TIM bằng các hạt
+      ctx.save();
+      for(let i=0;i<heartPts.length;i++){
+        const p = heartPts[i];
+        // jitter nhẹ để có cảm giác sinh động
+        const jx = Math.sin(t*0.002 + i)*p.jx;
+        const jy = Math.cos(t*0.0023 + i)*p.jy;
+        const x = state.cx + (p.x + jx) * baseS;
+        const y = state.cy - (p.y + jy) * baseS; // trục canvas y xuống dưới, nên trừ
+        // màu theo hue tổng + lệch nhẹ từng hạt
+        ctx.fillStyle = `hsla(${(hue+p.hue)%360}, 90%, 65%, 0.92)`;
+        ctx.fillRect(x, y, 1.2*dpr, 1.2*dpr);
+      }
+      ctx.restore();
+
+      // HẠT BAY TỪ DƯỚI LÊN
+      for(const r of RISERS){
+        if(!r.target && (r.y/dpr) < innerHeight*0.53){
+          // khi đã tiến gần tim thì chọn một điểm trong tim để lao vào
+          r.target = pickHeartPixel();
+        }
+        if(r.target){
+          const tx = state.cx + r.target.x * baseS;
+          const ty = state.cy - r.target.y * baseS;
+          const dx = tx - r.x, dy = ty - r.y;
+          r.vx += dx * 0.00008; r.vy += dy * 0.00008; // hút vào tim
+          r.vx *= 0.96; r.vy *= 0.96;
+          r.life -= 0.008; // mờ dần khi chuẩn bị hoà vào tim
+          if(Math.hypot(dx,dy) < 6*dpr || r.life <= 0){ spawnRiser(r); continue; }
+        } else {
+          r.vy += r.ay * dt; // gia tốc nhẹ lên trên
+        }
+        r.x += r.vx; r.y += r.vy;
+        ctx.beginPath();
+        ctx.fillStyle = `hsla(${(hue+20)%360}, 100%, 78%, ${Math.max(0.2, r.life)})`;
+        ctx.arc(r.x, r.y, r.size*dpr, 0, Math.PI*2);
+        ctx.fill();
+      }
+
+      requestAnimationFrame(draw);
+    }
+    draw();
+
+    /* ----------------------------------------
+       4) VÒNG CHỮ CHÚC TRUNG THU – nhiều lớp
+       Tạo 3–4 vòng, mỗi vòng một bán kính, tốc độ và nội dung riêng.
+       ---------------------------------------- */
+    const wishes = [
+      'Chúc Trung Thu ấm áp',
+      'Gia đình đoàn viên',
+      'Trăng tròn như ý',
+      'Sức khỏe – Hạnh phúc',
+      'Mọi điều bình an',
+      'Vui hội Trăng Rằm',
+      'Tiếng cười rộn ràng',
+      'Đèn lồng rực rỡ',
+      'Bánh nướng dẻo thơm',
+      'Thành công viên mãn',
+      'An khang thịnh vượng',
+      'Tình thân gắn kết',
+      'Ước mơ tròn đầy',
+      'Tâm an vạn sự an',
+      'Yêu thương lan tỏa',
+      'Học hành tấn tới',
+      'Tài lộc đủ đầy',
+      'Năm mới trăng rằm (Tết Trung Thu) vui',
+      'Bình yên mỗi ngày',
+      'Nụ cười toả nắng'
+    ];
+
+    // hàm tạo 1 vòng chữ – xếp các ký tự quanh vòng tròn
+    function createRing({radius, y=0, speed=28, dir=1, text}){
+      const ring = document.createElement('div');
+      ring.className = 'ring';
+      ring.style.setProperty('--radius', radius + 'px');
+      ring.style.setProperty('--y', (-y) + 'px');
+      ring.style.setProperty('--speed', speed + 's');
+      ring.style.setProperty('--dir', dir);
+
+      // lặp nội dung để vòng đủ dày
+      const content = (text + '  •  ').repeat(24);
+      const chars = [...content];
+      const step = 360 / chars.length; // góc xoay mỗi ký tự
+      for(let i=0;i<chars.length;i++){
+        const span = document.createElement('span');
+        span.className = 'char';
+        // xoay quanh tâm & đẩy ra bán kính đã định
+        span.style.transform = `rotate(${i*step}deg) translate(var(--radius)) rotate(90deg)`;
+        span.textContent = chars[i];
+        // ký tự dấu chấm thêm mờ để giống phân cách
+        if(chars[i] === '•'){ const s = document.createElement('s'); s.textContent = '•'; span.textContent = ''; span.appendChild(s); }
+        ring.appendChild(span);
+      }
+      ringsEl.appendChild(ring);
+      return ring;
+    }
+
+    // tạo nhiều vòng với thông số khác nhau tạo chiều sâu
+    const baseR = Math.min(innerWidth, 900) * 0.42;
+    const ringConfs = [
+      { radius: baseR*0.95, y: -2, speed: 36, dir: 1,  text: wishes.slice(0,10).join(' · ') },
+      { radius: baseR*0.78, y: 18, speed: 30, dir: -1, text: wishes.slice(10,20).join(' · ') },
+      { radius: baseR*0.60, y: 36, speed: 22, dir: 1,  text: wishes.slice(0,20).reverse().join(' · ') },
+      { radius: baseR*0.42, y: 50, speed: 18, dir: -1, text: 'Chúc Trung Thu an lành · Trăng rằm sáng lóa · Vạn sự như ý · ' }
+    ];
+    ringConfs.forEach(cfg => createRing(cfg));
+
+    /* ----------------------------------------
+       5) LỒNG ĐÈN SVG – sinh nhiều chiếc, bay chậm rãi
+       ---------------------------------------- */
+    function lanternSVG(){
+      return `
+      <svg viewBox="0 0 100 150" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <defs>
+          <linearGradient id="g1" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#ffdf6b"/>
+            <stop offset="45%" stop-color="#ff9b3a"/>
+            <stop offset="100%" stop-color="#ff6a2a"/>
+          </linearGradient>
+          <radialGradient id="glow" cx="50%" cy="45%" r="55%">
+            <stop offset="0%" stop-color="#fff6"/>
+            <stop offset="60%" stop-color="#0000"/>
+          </radialGradient>
+        </defs>
+        <!-- phần thân -->
+        <ellipse cx="50" cy="65" rx="34" ry="42" fill="url(#g1)" stroke="#7c2f00" stroke-width="2"/>
+        <ellipse class="glow" cx="50" cy="65" rx="28" ry="34" fill="url(#glow)"/>
+        <!-- nan hoa ngang -->
+        <g stroke="#7c2f00" stroke-width="2" opacity=".75">
+          <path d="M18 50 H82"/><path d="M16 65 H84"/><path d="M18 80 H82"/>
+        </g>
+        <!-- đỉnh và đáy -->
+        <rect x="30" y="22" width="40" height="8" rx="3" fill="#702800"/>
+        <rect x="26" y="106" width="48" height="9" rx="4" fill="#702800"/>
+        <!-- dây treo -->
+        <path d="M50 20 V6" stroke="#d0c9b0" stroke-width="2"/>
+        <circle cx="50" cy="6" r="2" fill="#d0c9b0"/>
+        <!-- tua rua -->
+        <path d="M50 115 v18" stroke="#ffcf5a" stroke-width="3"/>
+        <circle cx="50" cy="136" r="5" fill="#ffcf5a"/>
+      </svg>`;
+    }
+
+    const lanternHost = document.getElementById('lanterns');
+    function spawnLanterns(n=9){
+      for(let i=0;i<n;i++){
+        const el = document.createElement('div');
+        el.className = 'lantern';
+        el.innerHTML = lanternSVG();
+        el.style.left = (5 + Math.random()*90) + 'vw';
+        el.style.animationDuration = (40 + Math.random()*18) + 's';
+        el.style.animationDelay = (-Math.random()*38) + 's';
+        el.style.transform = `translateY(${Math.random()*40}vh)`; // offset ban đầu khác nhau
+        el.style.opacity = (0.55 + Math.random()*0.4).toFixed(2);
+        el.style.filter += ` drop-shadow(0 0 ${6+Math.random()*8}px #ffd07a)`;
+        lanternHost.appendChild(el);
+      }
+    }
+    spawnLanterns(10);
+
+    /* ----------------------------------------
+       6) ÂM NHẠC – thử phát tự động; nếu thất bại thì xin phép
+       ---------------------------------------- */
+    const audio = document.getElementById('bgm');
+    const gate = document.getElementById('gate');
+    const gatePlay = document.getElementById('gatePlay');
+    const toggleMute = document.getElementById('toggleMute');
+
+    async function tryPlay(){
+      try {
+        audio.volume = 0.85; // âm lượng mặc định
+        await audio.play();
+        gate.classList.add('hide');
+        toggleMute.textContent = '🔊 Đang phát';
+      } catch (err){
+        // Bị chặn – hiện lớp xin phép
+        gate.classList.remove('hide');
+        toggleMute.textContent = '🔇 Đang tắt (nhấn để bật)';
+      }
+    }
+
+    // cố gắng phát ngay khi tải
+    tryPlay();
+
+    gatePlay.addEventListener('click', async () => { await tryPlay(); });
+    // phát khi có bất kỳ tương tác lần đầu
+    const firstInteract = () => { tryPlay(); window.removeEventListener('pointerdown', firstInteract); };
+    window.addEventListener('pointerdown', firstInteract);
+
+    toggleMute.addEventListener('click', () => {
+      if(audio.paused){ audio.play(); toggleMute.textContent = '🔊 Đang phát'; gate.classList.add('hide'); }
+      else { audio.pause(); toggleMute.textContent = '🔇 Đang tắt'; }
+    });
+  })();
+  </script>
+</body>
+</html>
